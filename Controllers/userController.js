@@ -1,6 +1,8 @@
 import User from "../models/user.js";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
+import dotenv from "dotenv";
+dotenv.config()
 
 export async function createUser(req, res) {
     try {
@@ -53,16 +55,17 @@ export async function loginUser(req, res) {
                     isBlocked:user.isBlocked
                 }
 
-                const token = jwt.sign(payload, "dumindu", {
+                const token = jwt.sign(payload, process.env.jwtSecret, {
                     //expiresIn: "48h"
                 })
                 res.json({
                     message: "Logging Successfully",
-                    token: token
+                    token: token,
+                    isAdmin:user.isAdmin
                 })
             } else {
                 res.status(401).json({
-                    massage:"invalid password"
+                    message:"invalid password"
                 })
             }
 

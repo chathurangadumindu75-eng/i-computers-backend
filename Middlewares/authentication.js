@@ -1,14 +1,16 @@
 import jwt from "jsonwebtoken";
+import dotenv from "dotenv";
+dotenv.config()
 
 export default function authenticateUser(req, res, next) {
     const header = req.header("Authorization")
     if (header != null) {
         const token = header.replace("Bearer ", "")
-        jwt.verify(token, "dumindu",
+        jwt.verify(token, process.env.jwtSecret,
             (error, decoded) => {
                 if (decoded == null) {
                     res.json({
-                        massage: "Invalid Token Please loging again"
+                        message: "Invalid Token Please loging again"
                     })
                 } else {
                     req.user = decoded
