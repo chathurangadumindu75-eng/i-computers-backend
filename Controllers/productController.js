@@ -30,7 +30,7 @@ export async function createProduct(req, res) {
             altNames: req.body.altNames,
             price: req.body.price,
             lablledPrice: req.body.lablledPrice,
-            decription: req.body.decription,
+            description: req.body.description,
             images: req.body.images,
             brand: req.body.brand,
             model: req.body.model,

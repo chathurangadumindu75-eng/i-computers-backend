@@ -8,7 +8,7 @@ export async function createUser(req, res) {
     try {
 
         const passwordHash = bcrypt.hashSync(req.body.password, 10)
-        console.log(passwordHash)
+        //console.log(passwordHash)
         const newUser = new User({
             email: req.body.email,
             firstName: req.body.firstName,
@@ -62,7 +62,7 @@ export async function loginUser(req, res) {
                     message: "Logging Successfully",
                     token: token,
                     isAdmin:user.isAdmin
-                })
+                }) 
             } else {
                 res.status(401).json({
                     message:"invalid password"
