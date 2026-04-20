@@ -3,24 +3,24 @@ import { isAdmin } from "./userController.js";
 
 export async function createProduct(req, res) {
     if (req.user == null) {
-        req.status(401).json({
-            massage: "You need to login first."
+        res.status(401).json({
+            message: "You need to login first."
         })
         return
     }
     if (!isAdmin(req)) {
-        req.status(403), json({
-            massage: "You don't have the permission to perform this action"                 //vallidation
+        res.status(403).json({
+            message: "You don't have the permission to perform this action"                 //vallidation
         })
         return
     }
     try {
         const existingProduct = await Product.findOne({
-            productId: req.body.Product
+            productId: req.body.productId
         })
         if (existingProduct != null) {                                                       //vallidation
             res.status(400).json({
-                massage: "Product with this productId already  exists."
+                message: "Product with this productId already  exists."
             })
             return
         }
@@ -41,12 +41,13 @@ export async function createProduct(req, res) {
         await newProduct.save()
 
         res.status(201).json({
-            massage: "Product created successfully"
+            message: "Product created successfully"
         })
 
     } catch (error) {
+        console.error(error)
         res.status(500).json({
-            massage: "Error creating products"
+            message: "Error creating products"
         })
     }
 }
