@@ -9,7 +9,7 @@ export default function authenticateUser(req, res, next) {
         jwt.verify(token, process.env.jwtSecret,
             (error, decoded) => {
                 if (decoded == null) {
-                    res.json({
+                    res.status(401).json({
                         message: "Invalid Token Please loging again"
                     })
                 } else {
