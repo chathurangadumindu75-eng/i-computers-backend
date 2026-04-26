@@ -83,3 +83,60 @@ export default async function createOrder(req, res) {
         });
     }
 }
+
+export async function getOrders(req,res) {
+    try{
+
+        
+        if(req.user==null){
+            res.status(401).json({
+                message:"You need to logged in to view your orders"
+            })
+            return  
+        }
+
+        const pageNumberInString = req.params.pageNumber    //"10"
+        const pageSizeInString = req.params.pageSize        //"12"
+
+        const pageSize = parseInt(pageSizeInString)         //10
+        const pageNumber = parseInt(pageNumberInString)     //12
+
+        if(pageSize<1 || pageSize>100){
+            res.status(400).json({
+                message:"Page size should be between 1 and 100"
+            })
+            return
+        }
+        
+
+        if(req.user.isAdmin){
+
+            const orderCount= await Order.countDocuments()
+            const totalPages =Math.ceil(orderCount/pageSize)             //asanna purna sankyawata watayapu eka me math.ceil function eken wenne
+            const orders = await Order.find().sort({date:-1}).skip((pageNumber-1)*pageSize).limit(pageSize)
+            res.status(200).json({
+                orders:orders,
+                totalPages:totalPages,
+                total : orderCount
+            })
+
+        }else{
+
+            const orderCount= await Order.countDocuments({email:req.user.email})
+            const orders = await Order.find({email:req.user.email}).sort({date:-1}).skip((pageNumber-1)*pageSize).limit(pageSize)     
+            res.status(200).json({
+                orders:orders,
+                totalPages: totalPages,
+                total : orderCount
+
+            })
+        }
+    }catch(error){
+        (error)=>{
+            console.log(error)
+            res.status(500).json({
+                message:"Error fetching orders"
+            })
+        }
+    }
+}
