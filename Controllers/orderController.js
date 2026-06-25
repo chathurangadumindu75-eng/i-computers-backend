@@ -140,3 +140,29 @@ export async function getOrders(req,res) {
         }
     }
 }
+
+
+
+export async function updateOrderStatusAndNotes(req,res){
+    if(req.user && req.user.isAdmin){
+        try{
+            const orderId = req.params.orderId
+            await Order.findOneAndUpdate(
+                {orderId:orderId},
+                {
+                    status:req.body.status,
+                    notes:req.body.notes
+                }
+            )
+            res.status(200).json({
+                message:"Order status and notes updated successfully"
+            })
+
+        }catch(error){
+            console.log(error)
+            res.status(500).json({
+                message:"Error updating order status and notes"
+            })
+        }
+    }
+}

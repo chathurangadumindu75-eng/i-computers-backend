@@ -52,7 +52,8 @@ export async function loginUser(req, res) {
                     firstName: user.firstName,
                     lastName: user.lastName,
                     isAdmin: user.isAdmin,
-                    isBlocked:user.isBlocked
+                    isBlocked: user.isBlocked,
+                    image: user.image
                 }
 
                 const token = jwt.sign(payload, process.env.jwtSecret, {
@@ -61,11 +62,11 @@ export async function loginUser(req, res) {
                 res.json({
                     message: "Logging Successfully",
                     token: token,
-                    isAdmin:user.isAdmin
-                }) 
+                    isAdmin: user.isAdmin
+                })
             } else {
                 res.status(401).json({
-                    message:"invalid password"
+                    message: "invalid password"
                 })
             }
 
@@ -83,13 +84,91 @@ export async function loginUser(req, res) {
 
 }
 
-export function isAdmin(req){
+export async function userData(req, res) {
+    if (req.user == null) {
+        res.status(401).json({
+            message: "Unauthorized"
+        })
+    } else {
+        res.json(req.user)
+        console.log(req.user)
+    }
+}
+
+export async function updateUserData(req, res) {
+    if (req.user == null) {
+        res.status(401).json({
+            message: "Unauthorized"
+        })
+    } else {
+        try {
+            await User.findOneAndUpdate(
+                { email: req.user.email },
+                {
+                    firstName: req.body.firstName,
+                    lastName: req.body.lastName,
+                    image: req.body.image
+                }
+            )
+            const updatedUser = await User.findOne({ email: req.user.email })
+
+            const token = jwt.sign({
+                email: updatedUser.email,
+                firstName: updatedUser.firstName,
+                lastName: updatedUser.lastName,
+                isAdmin: updatedUser.isAdmin,
+                isBlocked: updatedUser.isBlocked,
+                isEmailVerified: updatedUser.isEmailVerified,
+                image: updatedUser.image
+            }, process.env.jwtSecret)
+
+            res.status(200).json({
+                message: "User data updated successfully",
+                token: token
+            })
+
+        } catch (error) {
+            console.log(error)
+            res.status(500).json({
+                message: "Error updating user data"
+            })
+        }
+    }
+}
+
+export async function changePassword(req,res){
     if(req.user==null){
+        res.status(401).json({
+            message:"Unauthorized"
+        })
+    }
+
+    try{
+
+        const hashedPassword = bcrypt.hashSync(req.body.newPassword,10)
+        await User.findOneAndUpdate(
+            {email: req.user.email},
+            { password: hashedPassword }
+        )
+        res.status(200).json({
+            message:"Password changed successfully"
+        })
+    }catch(error){
+        res.status(500).json({
+            message:"Error changing password"
+        })
+    }
+}
+
+
+
+export function isAdmin(req) {
+    if (req.user == null) {
         return false
     }
-    if(req.user.isAdmin){
+    if (req.user.isAdmin) {
         return true
-    }else{
+    } else {
         return false
     }
 }
